@@ -32,7 +32,8 @@ def generate_urls(topic_url):
 
 urls = []
 images = []
-directory = get_topic_title(TOPIC_URL)
+directory = get_topic_title(TOPIC_URL).replace("/", " ")
+
 
 if not os.path.exists(directory):
     os.makedirs(directory)
@@ -54,12 +55,18 @@ for url in generate_urls(TOPIC_URL):
                 images.append(link)
 
         for link in images:
-            content = requests.get(link, stream=True).content
-            filename = link.split("/")[-1]
-            if not os.path.isfile(os.path.join(directory, filename)):
-                print(f"Téléchargement de {filename}")
-                with open(os.path.join(directory, filename), mode="wb") as file:
-                    file.write(content)
+            try:
+                content = requests.get(link, stream=True).content
+                filename = link.split("/")[-1]
+                if not os.path.isfile(os.path.join(directory, filename)):
+                    print(f"Téléchargement de {filename}")
+                    with open(os.path.join(directory, filename), mode="wb") as file:
+                        file.write(content)
+            
+            except:
+                print(f"Impossible de télécharger {filename}, l'image a peut être été supprimée...")
+                pass
+            
 
     else:
         print(f"Fin du scraping, dernière page : {urls[-1]}")

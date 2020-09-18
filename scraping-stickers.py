@@ -83,5 +83,5 @@ for url in generate_urls(TOPIC_URL):
             break
     
     else:
-        print(f"[error {str(response.status_code)}]La page demandée n'est pas disponible.")
+        print(f"[error {str(response.status_code)}] La page demandée n'est pas disponible.")
         break

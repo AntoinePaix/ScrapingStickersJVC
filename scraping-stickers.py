@@ -6,6 +6,7 @@ import requests
 import time
 import os
 import argparse
+import re
 from bs4 import BeautifulSoup
 
 
@@ -55,6 +56,13 @@ for url in generate_urls(TOPIC_URL):
                 images.append(link)
 
         for link in images:
+            if link.startswith('https://www.noelshack.com'):
+                link = re.sub("https://www", "https://image", link)
+                link = link.split("/")
+                link.insert(3, "fichiers")
+                link = "/".join(link)
+                link = "/".join(link.split("-")[:3]) + "/" + "-".join(link.split('-')[3:])
+
             try:
                 content = requests.get(link, stream=True).content
                 filename = link.split("/")[-1]

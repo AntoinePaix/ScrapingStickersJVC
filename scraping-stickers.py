@@ -44,38 +44,44 @@ for url in generate_urls(TOPIC_URL):
 
     response = requests.get(url)
 
-    if response.url not in urls:
-        urls.append(response.url)
-        print(f"{response.url} added in urls.")
+    if response.status_code == 200:
 
-        soup = BeautifulSoup(response.content, "html.parser")
+        if response.url not in urls:
+            urls.append(response.url)
+            print(f"{response.url} added in urls.")
 
-        for image in soup.find_all("img", class_="img-shack"):
-            link = image['alt']
-            if link not in images:
-                images.append(link)
+            soup = BeautifulSoup(response.content, "html.parser")
 
-        for link in images:
-            if link.startswith('https://www.noelshack.com'):
-                link = re.sub("https://www", "https://image", link)
-                link = link.split("/")
-                link.insert(3, "fichiers")
-                link = "/".join(link)
-                link = "/".join(link.split("-")[:3]) + "/" + "-".join(link.split('-')[3:])
+            for image in soup.find_all("img", class_="img-shack"):
+                link = image['alt']
+                if link not in images:
+                    images.append(link)
 
-            try:
-                content = requests.get(link, stream=True).content
-                filename = link.split("/")[-1]
-                if not os.path.isfile(os.path.join(directory, filename)):
-                    print(f"Téléchargement de {filename}")
-                    with open(os.path.join(directory, filename), mode="wb") as file:
-                        file.write(content)
-            
-            except:
-                print(f"Impossible de télécharger {filename}, l'image a peut être été supprimée...")
-                pass
-            
+            for link in images:
+                if link.startswith('https://www.noelshack.com'):
+                    link = re.sub("https://www", "https://image", link)
+                    link = link.split("/")
+                    link.insert(3, "fichiers")
+                    link = "/".join(link)
+                    link = "/".join(link.split("-")[:3]) + "/" + "-".join(link.split('-')[3:])
 
+                try:
+                    content = requests.get(link, stream=True).content
+                    filename = link.split("/")[-1]
+                    if not os.path.isfile(os.path.join(directory, filename)):
+                        print(f"Téléchargement de {filename}")
+                        with open(os.path.join(directory, filename), mode="wb") as file:
+                            file.write(content)
+                
+                except:
+                    print(f"Impossible de télécharger {filename}, l'image a peut être été supprimée...")
+                    pass
+                
+
+        else:
+            print(f"Fin du scraping, dernière page : {urls[-1]}")
+            break
+    
     else:
-        print(f"Fin du scraping, dernière page : {urls[-1]}")
+        print(f"[error {str(response.status_code)}]La page demandée n'est pas disponible.")
         break
